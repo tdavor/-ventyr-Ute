@@ -1,9 +1,11 @@
-# Äventyr ute 0.2.1
+# Äventyr ute 0.3.0
 
 Ett Androidspel på svenska och engelska för utomhusuppdrag med familjen eller en kompis.
 
 - Välj **Svenska** eller **English** på startsidan. Ditt språkval sparas på enheten.
-- 16 färdiga uppdrag, med plats, tid och vad ni behöver ta med.
+- 28 färdiga uppdrag, med plats, tid och vad ni behöver ta med.
+- **Överraska oss** föreslår ett uppdrag som passar tiden ni har.
+- I **Göteborgspasset** låser tre olika områdesstämplar upp en egen Göteborgstur.
 - Tre olika avklarade uppdrag låser upp den sista skattjakten.
 - Under **För föräldrar** kan ni lägga till egna uppdrag.
 - Uppdrag och framsteg sparas på enheten. Spelet behöver inget konto, ingen uppkoppling och inga Android-behörigheter.
@@ -11,7 +13,7 @@ Ett Androidspel på svenska och engelska för utomhusuppdrag med familjen eller 
 
 ## Installera testversionen
 
-Öppna [APK-filen](downloads/AventyrUte-0.2.1-debug.apk) på en Android-enhet med Android 8.0 eller senare. Android kan be dig tillåta installationer från appen du öppnade filen med. APK-filen är avsedd för testning.
+Öppna [APK-filen](downloads/AventyrUte-0.3.0-debug.apk) på en Android-enhet med Android 8.0 eller senare. Android kan be dig tillåta installationer från appen du öppnade filen med. APK-filen är avsedd för testning.
 
 ## Bygg från källkod
 
