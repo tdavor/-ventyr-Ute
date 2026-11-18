@@ -10,6 +10,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Collections;
@@ -39,7 +40,11 @@ public class MainActivity extends Activity {
                 return serveLocalAsset(request.getUrl());
             }
         });
-        game.setOnApplyWindowInsetsListener((view, insets) -> {
+        FrameLayout content = new FrameLayout(this);
+        content.setBackgroundColor(0xfffaf0d9);
+        content.addView(game, new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        content.setOnApplyWindowInsetsListener((view, insets) -> {
             if (Build.VERSION.SDK_INT >= 30) {
                 android.graphics.Insets bars = insets.getInsets(
                     WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
@@ -49,7 +54,7 @@ public class MainActivity extends Activity {
         });
         getWindow().setStatusBarColor(0xfffaf0d9);
         getWindow().setNavigationBarColor(0xfffaf0d9);
-        setContentView(game);
+        setContentView(content);
         game.loadUrl("https://" + LOCAL_HOST + "/index.html");
     }
 

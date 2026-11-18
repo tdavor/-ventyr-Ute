@@ -77,10 +77,12 @@ function homeMarkup() {
     </select></label>${button("För föräldrar", "parents", "secondary")}</div></header>
     <h1>${t("Den försvunna kartan")}</h1>
     <p>${t("Lös uppdrag utomhus med familjen eller en kompis. Hitta tre kartbitar och lås upp en skattjakt.")}</p>
+    <div class="home-actions">
+      ${button("Välj ett uppdrag", "list")}
+      ${pieceCount() === 3 ? button(progress.finaleDone ? "Gör skattjakten igen" : "Starta skattjakten", "final", "secondary") : ""}
+    </div>
     <img src="park.webp" alt="">
-    ${mapMarkup()}
-    ${pieceCount() === 3 ? button(progress.finaleDone ? "Gör skattjakten igen" : "Starta skattjakten", "final") : ""}
-    ${button("Välj ett uppdrag", "list", pieceCount() === 3 ? "secondary" : "primary")}`;
+    ${mapMarkup()}`;
 }
 
 function listMarkup() {
@@ -113,7 +115,10 @@ function rewardMarkup() {
     ${mapMarkup()}
     <p>${t(completedFinale ? "Nu är det er tur att hitta på en skattjakt för familjen eller era kompisar."
       : newPiece ? storyClues[pieceCount() - 1] : "Välj ett nytt uppdrag när ni vill gå ut igen.")}</p>
-    ${button("Se kartan", "home")}</div>`;
+    <div class="home-actions">
+      ${button("Välj ett uppdrag", "list")}
+      ${button("Se kartan", "home", "secondary")}
+    </div></div>`;
 }
 
 function parentsMarkup() {

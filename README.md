@@ -1,4 +1,4 @@
-# Äventyr ute 0.2.0
+# Äventyr ute 0.2.1
 
 Ett Androidspel på svenska och engelska för utomhusuppdrag med familjen eller en kompis.
 
@@ -11,7 +11,7 @@ Ett Androidspel på svenska och engelska för utomhusuppdrag med familjen eller 
 
 ## Installera testversionen
 
-Öppna APK-filen på en Android-enhet med Android 8.0 eller senare. Android kan be dig tillåta installationer från appen du öppnade filen med. APK-filen är avsedd för testning.
+Öppna [APK-filen](downloads/AventyrUte-0.2.1-debug.apk) på en Android-enhet med Android 8.0 eller senare. Android kan be dig tillåta installationer från appen du öppnade filen med. APK-filen är avsedd för testning.
 
 ## Bygg från källkod
 
