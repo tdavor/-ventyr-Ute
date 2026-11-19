@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <application android:label="Äventyr ute" android:icon="@mipmap/ic_launcher" android:theme="@style/AppTheme"
         android:allowBackup="false" android:usesCleartextTraffic="false">
         <provider android:name=".MemoryProvider" android:authorities="se.aventyrute.memories"

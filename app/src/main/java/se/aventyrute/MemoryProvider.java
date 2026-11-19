@@ -15,7 +15,7 @@ public class MemoryProvider extends ContentProvider {
 
     private File photo(Uri uri) throws FileNotFoundException {
         String name = uri.getLastPathSegment();
-        if (name == null || !name.matches("memory-[a-zA-Z0-9-]+\\.jpg")) {
+        if (name == null || (!"update.apk".equals(name) && !name.matches("memory-[a-zA-Z0-9-]+\\.jpg"))) {
             throw new FileNotFoundException();
         }
         File file = new File(new File(getContext().getCacheDir(), "shared"), name);
@@ -28,7 +28,7 @@ public class MemoryProvider extends ContentProvider {
         return ParcelFileDescriptor.open(photo(uri), ParcelFileDescriptor.MODE_READ_ONLY);
     }
 
-    @Override public String getType(Uri uri) { return "image/jpeg"; }
+    @Override public String getType(Uri uri) { return "update.apk".equals(uri.getLastPathSegment()) ? "application/vnd.android.package-archive" : "image/jpeg"; }
 
     @Override public Cursor query(Uri uri, String[] projection, String selection,
             String[] args, String sort) {

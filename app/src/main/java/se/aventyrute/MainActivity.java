@@ -25,11 +25,13 @@ import java.util.Collections;
 public class MainActivity extends Activity {
     private static final String LOCAL_HOST = "appassets.androidplatform.net";
     private WebView game;
+    private AppUpdater updater;
     private ValueCallback<Uri[]> photoPicker;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        updater = new AppUpdater(this);
         game = new WebView(this);
         game.setBackgroundColor(0xfffaf0d9);
         game.getSettings().setJavaScriptEnabled(true);
@@ -81,6 +83,13 @@ public class MainActivity extends Activity {
             }
         });
         game.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                if (!("https://" + LOCAL_HOST + "/index.html").equals(url)) return;
+                view.evaluateJavascript("typeof language === 'string' ? language : 'sv'",
+                    result -> updater.check("\"en\"".equals(result) ? "en" : "sv"));
+            }
+
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 return true;
@@ -134,9 +143,16 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
+        if (request == 43) { updater.permissionReturned(); return; }
         if (request != 42 || photoPicker == null) return;
         photoPicker.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result, data));
         photoPicker = null;
+    }
+
+    @Override
+    protected void onDestroy() {
+        updater.close();
+        super.onDestroy();
     }
 
     @Override
