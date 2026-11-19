@@ -81,30 +81,92 @@ function homeMarkup() {
       ${button("Välj ett uppdrag", "list")}
       ${pieceCount() === 3 ? button(progress.finaleDone ? "Gör skattjakten igen" : "Starta skattjakten", "final", "secondary") : ""}
     </div>
+    <div class="stack">
+      ${button("Förälder och barn", "family", "secondary")}
+      ${button("Vår minnesbok", "memories", "secondary")}
+      ${button("Överraska oss", "surprise", "secondary")}
+      ${button("Göteborg – Lär känna din stad", "city", "secondary")}
+    </div>
     <img src="park.webp" alt="">
     ${mapMarkup()}`;
 }
 
 function listMarkup() {
-  const entries = [...missions, ...progress.custom].filter(mission => mission.group === group);
   return `<h1>${t("Välj ett uppdrag")}</h1>
-    <div class="tabs" aria-label="${t("Vem följer med?")}">${Object.entries(groupName).map(([key, name]) =>
-      `<button class="secondary" type="button" data-action="group" data-id="${key}" aria-pressed="${key === group}">${t(name)}</button>`).join("")}</div>
-    <div class="stack">${entries.map(localizedMission).map(mission =>
-      `<button type="button" class="card" data-action="mission" data-id="${escapeHtml(mission.id)}">
+    ${groupMarkup()}
+    ${missionCards(localMissions().filter(mission => matchesGroup(mission, group)))}`;
+}
+
+function localMissions() {
+  return [...neighborhoodActivities, ...missions, ...progress.custom];
+}
+
+function matchesGroup(mission, selectedGroup) {
+  return mission.group === "both" || mission.group === selectedGroup;
+}
+
+function groupMarkup() {
+  return `<div class="tabs" aria-label="${t("Vem följer med?")}">${Object.entries(groupName).map(([key, name]) =>
+    `<button class="secondary" type="button" data-action="group" data-id="${key}" aria-pressed="${key === group}">${t(name)}</button>`).join("")}</div>`;
+}
+
+function missionCards(entries) {
+  return `<div class="stack">${entries.map(localizedMission).map(mission =>
+    `<button type="button" class="card" data-action="mission" data-id="${escapeHtml(mission.id)}">
       <strong>${mission.icon} ${escapeHtml(mission.title)}</strong>
-      <span>${mission.minutes} min · ${escapeHtml(mission.place)}${progress.completed.includes(mission.id) ? " · " + t("Klart") : ""}</span></button>`).join("")}</div>`;
+      <span>${mission.chapters ? t("4–8 år · Flera tillfällen") : mission.minutes + " min"} · ${escapeHtml(mission.place)}${progress.completed.includes(mission.id) ? " · " + t("Klart") : ""}</span>
+    </button>`).join("")}</div>`;
+}
+
+function surpriseMarkup() {
+  return `<h1>${t("Överraska oss")}</h1>
+    ${groupMarkup()}
+    <h2>${t("Hur mycket tid har ni?")}</h2>
+    <div class="tabs">${[15, 30, 60].map(minutes =>
+      `<button class="secondary" type="button" data-action="surprise-pick" data-id="${minutes}">${minutes} min</button>`).join("")}</div>`;
+}
+
+function stampedAreas() {
+  return new Set(cityMissions
+    .filter(mission => mission.area && progress.completed.includes(mission.id))
+    .map(mission => mission.area));
+}
+
+function cityMarkup() {
+  const stamps = stampedAreas();
+  return `<h1>${t("Göteborg – Lär känna din stad")}</h1>
+    <h2>${t("Göteborgspasset")}</h2>
+    <p>${t("Samla stämplar från tre olika områden för att låsa upp en egen Göteborgstur.")}</p>
+    <p class="badge">${t("Stämplade områden")}: ${stamps.size}/${Object.keys(cityAreas).length}</p>
+    ${stamps.size >= 3 ? button("Min Göteborgstur", "city-tour") : ""}
+    ${Object.entries(cityAreas).map(([key, name]) => `<section class="city-area">
+      <h2>${name}${stamps.has(key) ? " · ✓" : ""}</h2>
+      ${missionCards(cityMissions.filter(mission => mission.area === key))}
+    </section>`).join("")}
+    <section class="city-area">
+      <h2>${t("Flera områden")}</h2>
+      ${missionCards(cityMissions.filter(mission => !mission.area))}
+    </section>`;
+}
+
+function openMission(mission, origin = screen) {
+  if (!mission) return;
+  current = mission;
+  returnTo = origin;
+  show("mission");
 }
 
 function missionMarkup() {
   const mission = localizedMission(current);
   return `<h1>${escapeHtml(mission.title)}</h1>
-    <p class="badge">${mission.minutes} min · ${t(groupName[mission.group] || "Tillsammans")}</p>
+    <p class="badge">${mission.chapters ? t("4–8 år · Flera tillfällen") : mission.minutes + " min"} · ${t(groupName[mission.group] || "Tillsammans")}</p>
     ${mission.id === "park" ? '<img src="mission.webp" alt="">' : ""}
     <p><strong>${t("Plats:")}</strong> ${escapeHtml(mission.place)}</p>
     <div class="panel"><p>${escapeHtml(mission.instructions)}</p></div>
     ${mission.bring ? `<p><strong>${t("Ta med:")}</strong> ${escapeHtml(mission.bring)}</p>` : ""}
     <p class="muted">${t("Läs uppdraget tillsammans. Lägg undan mobilen och tryck här när ni är tillbaka.")}</p>
+    ${familyAdventures.some(m => m.id === current.id) ? `<div class="panel"><h2>${t("Till den vuxna")}</h2><p>${escapeHtml(current.prep[language === "en" ? 1 : 0])}</p></div>` : ""}
+    ${button("Bilder och minnen", "album", "secondary")}
     ${button("Vi är klara", "complete")}`;
 }
 
@@ -116,7 +178,9 @@ function rewardMarkup() {
     <p>${t(completedFinale ? "Nu är det er tur att hitta på en skattjakt för familjen eller era kompisar."
       : newPiece ? storyClues[pieceCount() - 1] : "Välj ett nytt uppdrag när ni vill gå ut igen.")}</p>
     <div class="home-actions">
+      ${button("Lägg till ett minne", "album")}
       ${button("Välj ett uppdrag", "list")}
+      ${returnTo === "city" ? button("Till Göteborgspasset", "city", "secondary") : ""}
       ${button("Se kartan", "home", "secondary")}
     </div></div>`;
 }
@@ -137,7 +201,7 @@ function parentsMarkup() {
     </form>`;
 }
 
-const views = { home: homeMarkup, list: listMarkup, mission: missionMarkup, reward: rewardMarkup, parents: parentsMarkup };
+const views = { home: homeMarkup, list: listMarkup, mission: missionMarkup, reward: rewardMarkup, parents: parentsMarkup, surprise: surpriseMarkup, city: cityMarkup, family: familyMarkup, album: albumMarkup, memories: memoriesMarkup };
 
 function show(next, { scroll = true } = {}) {
   screen = next;
@@ -153,7 +217,7 @@ function show(next, { scroll = true } = {}) {
 
 window.gameBack = () => {
   if (screen === "home") return false;
-  show(screen === "mission" ? returnTo : "home");
+  show(screen === "mission" ? returnTo : screen === "album" ? "mission" : "home");
   return true;
 };
 
@@ -164,20 +228,25 @@ app.addEventListener("click", event => {
   switch (action) {
     case "group":
       group = id;
-      show("list", { scroll: false });
+      show(screen, { scroll: false });
       app.querySelector('[aria-pressed="true"]').focus();
       break;
     case "mission":
-      current = [...missions, ...progress.custom].find(mission => mission.id === id);
-      if (current) {
-        returnTo = "list";
-        show("mission");
-      }
+      openMission([...localMissions(), ...cityMissions, ...familyAdventures, cityTour, finale].find(mission => mission.id === id));
+      break;
+    case "surprise-pick": {
+      const eligible = localMissions().filter(mission =>
+        matchesGroup(mission, group) && mission.minutes <= Number(id));
+      const remaining = eligible.filter(mission => !progress.completed.includes(mission.id));
+      const choices = remaining.length ? remaining : eligible;
+      openMission(choices[Math.floor(Math.random() * choices.length)]);
+      break;
+    }
+    case "city-tour":
+      if (stampedAreas().size >= 3) openMission(cityTour);
       break;
     case "final":
-      current = finale;
-      returnTo = "home";
-      show("mission");
+      openMission(finale, "home");
       break;
     case "complete": {
       if (current.id === finale.id) {
@@ -192,12 +261,21 @@ app.addEventListener("click", event => {
       show("reward");
       break;
     }
+    case "album":
+      albumMission = current;
+      show("album");
+      loadAlbum();
+      break;
     case "back":
       window.gameBack();
       break;
     case "home":
     case "list":
     case "parents":
+    case "surprise":
+    case "city":
+    case "family":
+    case "memories":
       show(action);
       break;
   }

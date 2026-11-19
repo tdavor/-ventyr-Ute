@@ -1,6 +1,13 @@
 package se.aventyrute;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.ClipData;
+import android.webkit.ValueCallback;
+import android.webkit.JavascriptInterface;
+import android.util.Base64;
+import java.io.File;
+import java.io.FileOutputStream;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,6 +25,7 @@ import java.util.Collections;
 public class MainActivity extends Activity {
     private static final String LOCAL_HOST = "appassets.androidplatform.net";
     private WebView game;
+    private ValueCallback<Uri[]> photoPicker;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -28,7 +36,50 @@ public class MainActivity extends Activity {
         game.getSettings().setDomStorageEnabled(true);
         game.getSettings().setAllowContentAccess(false);
         game.getSettings().setAllowFileAccess(false);
-        game.setWebChromeClient(new WebChromeClient());
+        game.addJavascriptInterface(new Object() {
+            @JavascriptInterface
+            public void sharePhoto(String encoded) {
+                if (encoded.length() > 12000000) return;
+                runOnUiThread(() -> {
+                    try {
+                        File directory = new File(getCacheDir(), "shared");
+                        directory.mkdirs();
+                        File photo = File.createTempFile("memory-", ".jpg", directory);
+                        try (FileOutputStream output = new FileOutputStream(photo)) {
+                            output.write(Base64.decode(encoded, Base64.DEFAULT));
+                        }
+                        Uri uri = Uri.parse("content://se.aventyrute.memories/" + photo.getName());
+                        Intent share = new Intent(Intent.ACTION_SEND);
+                        share.setType("image/jpeg");
+                        share.putExtra(Intent.EXTRA_STREAM, uri);
+                        share.setClipData(ClipData.newRawUri("Memory", uri));
+                        share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        startActivity(Intent.createChooser(share, null));
+                    } catch (Exception error) {
+                        game.evaluateJavascript("alert(t('Kunde inte dela bilden.'))", null);
+                    }
+                });
+            }
+        }, "AndroidAlbum");
+        game.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback,
+                    FileChooserParams parameters) {
+                if (photoPicker != null) photoPicker.onReceiveValue(null);
+                photoPicker = callback;
+                Intent pick = new Intent(Intent.ACTION_GET_CONTENT);
+                pick.setType("image/*");
+                pick.addCategory(Intent.CATEGORY_OPENABLE);
+                pick.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                try {
+                    startActivityForResult(Intent.createChooser(pick, null), 42);
+                } catch (Exception error) {
+                    photoPicker.onReceiveValue(null);
+                    photoPicker = null;
+                }
+                return true;
+            }
+        });
         game.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
@@ -78,6 +129,14 @@ public class MainActivity extends Activity {
         }
         return new WebResourceResponse("text/plain", "UTF-8", 404, "Not Found",
             Collections.emptyMap(), new ByteArrayInputStream(new byte[0]));
+    }
+
+    @Override
+    protected void onActivityResult(int request, int result, Intent data) {
+        super.onActivityResult(request, result, data);
+        if (request != 42 || photoPicker == null) return;
+        photoPicker.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result, data));
+        photoPicker = null;
     }
 
     @Override
