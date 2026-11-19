@@ -1,4 +1,4 @@
-# Äventyr ute 0.5.0
+# Äventyr ute 0.5.1
 
 Ett Androidspel på svenska och engelska för utomhusuppdrag med familjen eller en kompis.
 
@@ -13,7 +13,7 @@ Ett Androidspel på svenska och engelska för utomhusuppdrag med familjen eller 
 
 ## Installera testversionen
 
-Öppna [APK-filen](downloads/AventyrUte-0.5.0-debug.apk) på en Android-enhet med Android 8.0 eller senare. Android kan be dig tillåta installationer från appen du öppnade filen med. APK-filen är avsedd för testning.
+Öppna [APK-filen](downloads/AventyrUte-0.5.1-debug.apk) på en Android-enhet med Android 8.0 eller senare. Android kan be dig tillåta installationer från appen du öppnade filen med. APK-filen är avsedd för testning.
 
 ## Bygg från källkod
 
@@ -32,3 +32,5 @@ Sju äventyr för barn 4–8 år och deras vuxna har flera kapitel och förbered
 ## Uppdateringar
 
 Vid start kontrollerar appen stabila versionstaggar i GitHub-repot. En ny version kan hämtas efter godkännande med synligt förlopp. Appen verifierar GitHubs filhash, paketnamn, högre versionskod och samma signatur före Androids installationsdialog. Nästa APK måste vara signerad med samma nyckel och finnas i `downloads/AventyrUte-X.Y.Z-debug.apk` under motsvarande `vX.Y.Z`-tagg. Internet och tillstånd att begära paketinstallation används för uppdateringar.
+
+Albumet har knappen **Ta en bild / Take a Photo** som öppnar telefonens kamera och lägger den färdiga bilden i uppdragets album. **Lägg till bilder** väljer befintliga bilder. Om fotograferingen avbryts läggs ingen bild till.

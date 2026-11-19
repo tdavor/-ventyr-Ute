@@ -3,6 +3,7 @@ package se.aventyrute;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.ClipData;
+import android.provider.MediaStore;
 import android.webkit.ValueCallback;
 import android.webkit.JavascriptInterface;
 import android.util.Base64;
@@ -27,6 +28,7 @@ public class MainActivity extends Activity {
     private WebView game;
     private AppUpdater updater;
     private ValueCallback<Uri[]> photoPicker;
+    private Uri cameraOutput;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,7 +38,7 @@ public class MainActivity extends Activity {
         game.setBackgroundColor(0xfffaf0d9);
         game.getSettings().setJavaScriptEnabled(true);
         game.getSettings().setDomStorageEnabled(true);
-        game.getSettings().setAllowContentAccess(false);
+        game.getSettings().setAllowContentAccess(true);
         game.getSettings().setAllowFileAccess(false);
         game.addJavascriptInterface(new Object() {
             @JavascriptInterface
@@ -69,15 +71,31 @@ public class MainActivity extends Activity {
                     FileChooserParams parameters) {
                 if (photoPicker != null) photoPicker.onReceiveValue(null);
                 photoPicker = callback;
-                Intent pick = new Intent(Intent.ACTION_GET_CONTENT);
-                pick.setType("image/*");
-                pick.addCategory(Intent.CATEGORY_OPENABLE);
-                pick.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                cameraOutput = null;
                 try {
-                    startActivityForResult(Intent.createChooser(pick, null), 42);
+                    if (parameters.isCaptureEnabled()) {
+                        File directory = new File(getCacheDir(), "shared");
+                        directory.mkdirs();
+                        File photo = File.createTempFile("memory-camera-", ".jpg", directory);
+                        cameraOutput = Uri.parse("content://se.aventyrute.memories/" + photo.getName());
+                        Intent capture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        capture.putExtra(MediaStore.EXTRA_OUTPUT, cameraOutput);
+                        capture.setClipData(ClipData.newRawUri("Photo", cameraOutput));
+                        capture.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        startActivityForResult(capture, 42);
+                    } else {
+                        Intent pick = new Intent(Intent.ACTION_GET_CONTENT);
+                        pick.setType("image/*");
+                        pick.addCategory(Intent.CATEGORY_OPENABLE);
+                        pick.putExtra(Intent.EXTRA_ALLOW_MULTIPLE,
+                            parameters.getMode() == FileChooserParams.MODE_OPEN_MULTIPLE);
+                        startActivityForResult(Intent.createChooser(pick, null), 42);
+                    }
                 } catch (Exception error) {
+                    clearCameraOutput(true);
                     photoPicker.onReceiveValue(null);
                     photoPicker = null;
+                    game.evaluateJavascript("alert(t('Kameran kunde inte öppnas.'))", null);
                 }
                 return true;
             }
@@ -145,8 +163,23 @@ public class MainActivity extends Activity {
         super.onActivityResult(request, result, data);
         if (request == 43) { updater.permissionReturned(); return; }
         if (request != 42 || photoPicker == null) return;
-        photoPicker.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result, data));
+        ValueCallback<Uri[]> callback = photoPicker;
         photoPicker = null;
+        if (cameraOutput != null) {
+            File photo = new File(new File(getCacheDir(), "shared"), cameraOutput.getLastPathSegment());
+            boolean success = result == RESULT_OK && photo.isFile() && photo.length() > 0;
+            callback.onReceiveValue(success ? new Uri[]{cameraOutput} : null);
+            clearCameraOutput(!success);
+        } else {
+            callback.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result, data));
+        }
+    }
+
+    private void clearCameraOutput(boolean delete) {
+        if (cameraOutput == null) return;
+        revokeUriPermission(cameraOutput, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        if (delete) new File(new File(getCacheDir(), "shared"), cameraOutput.getLastPathSegment()).delete();
+        cameraOutput = null;
     }
 
     @Override

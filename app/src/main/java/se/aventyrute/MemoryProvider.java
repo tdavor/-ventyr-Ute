@@ -24,8 +24,13 @@ public class MemoryProvider extends ContentProvider {
     }
 
     @Override public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
-        if (!"r".equals(mode)) throw new FileNotFoundException();
-        return ParcelFileDescriptor.open(photo(uri), ParcelFileDescriptor.MODE_READ_ONLY);
+        File file = photo(uri);
+        if ("r".equals(mode)) return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+        if (!file.getName().startsWith("memory-camera-") || !("w".equals(mode)
+                || "wt".equals(mode) || "rw".equals(mode) || "rwt".equals(mode))) {
+            throw new FileNotFoundException();
+        }
+        return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode));
     }
 
     @Override public String getType(Uri uri) { return "update.apk".equals(uri.getLastPathSegment()) ? "application/vnd.android.package-archive" : "image/jpeg"; }

@@ -5,7 +5,7 @@
         android:allowBackup="false" android:usesCleartextTraffic="false">
         <provider android:name=".MemoryProvider" android:authorities="se.aventyrute.memories"
             android:exported="false" android:grantUriPermissions="true" />
-        <activity android:name=".MainActivity" android:exported="true">
+        <activity android:name=".MainActivity" android:exported="true" android:configChanges="orientation|screenSize|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
