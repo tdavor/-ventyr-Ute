@@ -44,6 +44,8 @@ const familyAdventures = [
 });
 
 Object.assign(english, {
+  "Ta en bild":"Take a Photo",
+  "Kameran kunde inte öppnas.":"Could not open the camera or photo picker.",
   "Förälder och barn":"Parent and Child", "Vår minnesbok":"Our Memory Book",
   "Till den vuxna":"For the Adult", "4–8 år · Flera tillfällen":"Ages 4–8 · Several sessions",
   "Lägg till ett minne":"Add a Memory", "Bilder och minnen":"Photos and Memories",

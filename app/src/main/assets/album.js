@@ -17,6 +17,7 @@ function albumMarkup() {
   return `<h1>${t("Bilder och minnen")}</h1><h2>${escapeHtml(localizedMission(albumMission).title)}</h2>
     <label>${t("Skriv en rad om ert äventyr")}<textarea id="memory-note" maxlength="1500"></textarea></label>
     ${button("Spara minnet", "save-note")}
+    <label class="camera-button">${t("Ta en bild")}<input id="album-camera" type="file" accept="image/*" capture="environment"></label>
     <label>${t("Lägg till bilder")}<input id="album-input" type="file" accept="image/*" multiple></label>
     <p>${t("Välj bilder från kameran eller galleriet.")}</p>
     <p id="album-status" role="status"></p><div id="album-photos"></div>`;
@@ -46,7 +47,7 @@ async function albumStore(store, mode, operation) {
   });
 }
 
-async function loadAlbum() {
+async function loadAlbum(preserveNote = false) {
   const id = albumMission.id;
   try {
     const [photos,note] = await Promise.all([
@@ -55,7 +56,7 @@ async function loadAlbum() {
     ]);
     if (screen !== "album" || albumMission.id !== id) return;
     albumPhotos = photos.filter(photo=>photo.mission === id);
-    document.querySelector("#memory-note").value = note?.text || "";
+    if (!preserveNote) document.querySelector("#memory-note").value = note?.text || "";
     renderPhotos();
   } catch {
     document.querySelector("#album-status").textContent = t("Det gick inte att spara. Försök igen.");
@@ -87,7 +88,7 @@ async function preparePhoto(file) {
 }
 
 document.addEventListener("change",async event=>{
-  if (event.target.id !== "album-input") return;
+  if (!["album-input", "album-camera"].includes(event.target.id)) return;
   const input = event.target;
   const mission = albumMission.id;
   input.disabled = true;
@@ -98,7 +99,7 @@ document.addEventListener("change",async event=>{
         id:crypto.randomUUID(),mission,blob,date:Date.now()
       }));
     }
-    if (screen === "album" && albumMission.id === mission) await loadAlbum();
+    if (screen === "album" && albumMission.id === mission) await loadAlbum(true);
   } catch {
     if (screen === "album") document.querySelector("#album-status").textContent = t("Kunde inte spara bilden. Försök med en annan bild.");
   } finally {
