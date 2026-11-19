@@ -1,4 +1,4 @@
-# Äventyr ute 0.3.0
+# Äventyr ute 0.4.0
 
 Ett Androidspel på svenska och engelska för utomhusuppdrag med familjen eller en kompis.
 
@@ -13,7 +13,7 @@ Ett Androidspel på svenska och engelska för utomhusuppdrag med familjen eller 
 
 ## Installera testversionen
 
-Öppna [APK-filen](downloads/AventyrUte-0.3.0-debug.apk) på en Android-enhet med Android 8.0 eller senare. Android kan be dig tillåta installationer från appen du öppnade filen med. APK-filen är avsedd för testning.
+Öppna [APK-filen](downloads/AventyrUte-0.4.0-debug.apk) på en Android-enhet med Android 8.0 eller senare. Android kan be dig tillåta installationer från appen du öppnade filen med. APK-filen är avsedd för testning.
 
 ## Bygg från källkod
 
@@ -24,3 +24,7 @@ gradle :app:assembleDebug
 ```
 
 APK-filen hamnar i `app/build/outputs/apk/debug/`. Arbetsflödet **Android APK** bygger också en testfil i GitHub Actions när projektets innehåll ligger i repots rot.
+
+## Familjeäventyr och minnesbok
+
+Sju äventyr för barn 4–8 år och deras vuxna har flera kapitel och förberedelser för föräldern. Varje uppdrag har ett eget album för fotografier och anteckningar. Välj bilder med Androids bildväljare och dela en bild med Androids delningsmeny. Bilder sparas i appen på enheten och försvinner om appdata raderas eller appen avinstalleras. Delade kopior hanteras av mottagarappen.
