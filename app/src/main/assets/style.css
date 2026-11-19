@@ -1,8 +1,8 @@
 :root{font-family:system-ui,sans-serif;color:#183624;background:#faf0d9;color-scheme:light}
 *{box-sizing:border-box}
 body{margin:0}
-main{max-width:540px;margin:auto;padding:20px clamp(18px,5vw,28px) 30px}
-header{display:flex;justify-content:space-between;align-items:center;min-height:48px;gap:12px}
+main{max-width:540px;margin:auto;padding:30px clamp(18px,5vw,28px) 30px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;min-height:48px;gap:8px 12px}
 h1{font-size:clamp(2rem,9vw,3rem);line-height:1.08;margin:18px 0 12px;letter-spacing:-.04em}
 h2{font-size:1.25rem;margin:0}
 p{font-size:1.05rem;line-height:1.5;margin:12px 0}
@@ -19,10 +19,10 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .card{width:100%;text-align:left;border:1px solid #b9ae90;background:#fff9e9;padding:14px}
 .card span{display:block;font-size:.92rem;margin-top:5px}
 .badge{display:inline-block;background:#f5d384;padding:7px 12px;border-radius:999px;font-weight:700}
-.map{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:18px 0}
-.map span{aspect-ratio:1.1;display:grid;place-items:center;border-radius:12px;border:1px dashed #9b835b;background:#ead8af;color:#5c472b;font-weight:800;font-size:1.6rem}
+.map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:18px 0}
+.map span{position:relative;min-width:0;overflow:hidden;aspect-ratio:1.1;display:grid;place-items:center;border-radius:12px;border:1px dashed #9b835b;background:#ead8af;color:#5c472b;font-weight:800;font-size:1.6rem}
 .map .found{background:#dbe5b7;border-style:solid;color:#365420}
-.map .art{width:100%;height:100%;margin:0;border-radius:11px;object-fit:cover}
+.map .art{position:absolute;inset:0;width:100%;height:100%;margin:0;border-radius:11px;object-fit:cover}
 .panel{background:#fff9e9;border:1px solid #d3c5a4;border-radius:16px;padding:16px;margin:16px 0}
 .panel p{white-space:pre-wrap}
 label{display:grid;gap:5px;margin:14px 0;font-weight:650}
@@ -30,7 +30,12 @@ input,textarea,select{width:100%;padding:10px;border:1px solid #9f957c;border-ra
 textarea{resize:vertical;min-height:90px}
 .center{text-align:center}
 .muted{color:#4b614c}
-.header-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
+.header-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0;max-width:100%}
+.header-actions button,.language{max-width:100%}
+.home-actions{display:grid;gap:8px;margin:16px 0}
+.home-actions .primary{margin:0}
 .language{margin:0}
-.language select{min-height:48px;width:auto}
+.language select{min-height:48px;width:auto;max-width:100%}
 .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+.city-area{margin-top:24px}
+.city-area h2{margin-bottom:8px}
