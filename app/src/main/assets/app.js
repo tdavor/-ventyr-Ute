@@ -82,6 +82,8 @@ function homeMarkup() {
       ${pieceCount() === 3 ? button(progress.finaleDone ? "Gör skattjakten igen" : "Starta skattjakten", "final", "secondary") : ""}
     </div>
     <div class="stack">
+      ${button("Förälder och barn", "family", "secondary")}
+      ${button("Vår minnesbok", "memories", "secondary")}
       ${button("Överraska oss", "surprise", "secondary")}
       ${button("Göteborg – Lär känna din stad", "city", "secondary")}
     </div>
@@ -112,7 +114,7 @@ function missionCards(entries) {
   return `<div class="stack">${entries.map(localizedMission).map(mission =>
     `<button type="button" class="card" data-action="mission" data-id="${escapeHtml(mission.id)}">
       <strong>${mission.icon} ${escapeHtml(mission.title)}</strong>
-      <span>${mission.minutes} min · ${escapeHtml(mission.place)}${progress.completed.includes(mission.id) ? " · " + t("Klart") : ""}</span>
+      <span>${mission.chapters ? t("4–8 år · Flera tillfällen") : mission.minutes + " min"} · ${escapeHtml(mission.place)}${progress.completed.includes(mission.id) ? " · " + t("Klart") : ""}</span>
     </button>`).join("")}</div>`;
 }
 
@@ -157,12 +159,14 @@ function openMission(mission, origin = screen) {
 function missionMarkup() {
   const mission = localizedMission(current);
   return `<h1>${escapeHtml(mission.title)}</h1>
-    <p class="badge">${mission.minutes} min · ${t(groupName[mission.group] || "Tillsammans")}</p>
+    <p class="badge">${mission.chapters ? t("4–8 år · Flera tillfällen") : mission.minutes + " min"} · ${t(groupName[mission.group] || "Tillsammans")}</p>
     ${mission.id === "park" ? '<img src="mission.webp" alt="">' : ""}
     <p><strong>${t("Plats:")}</strong> ${escapeHtml(mission.place)}</p>
     <div class="panel"><p>${escapeHtml(mission.instructions)}</p></div>
     ${mission.bring ? `<p><strong>${t("Ta med:")}</strong> ${escapeHtml(mission.bring)}</p>` : ""}
     <p class="muted">${t("Läs uppdraget tillsammans. Lägg undan mobilen och tryck här när ni är tillbaka.")}</p>
+    ${familyAdventures.some(m => m.id === current.id) ? `<div class="panel"><h2>${t("Till den vuxna")}</h2><p>${escapeHtml(current.prep[language === "en" ? 1 : 0])}</p></div>` : ""}
+    ${button("Bilder och minnen", "album", "secondary")}
     ${button("Vi är klara", "complete")}`;
 }
 
@@ -174,6 +178,7 @@ function rewardMarkup() {
     <p>${t(completedFinale ? "Nu är det er tur att hitta på en skattjakt för familjen eller era kompisar."
       : newPiece ? storyClues[pieceCount() - 1] : "Välj ett nytt uppdrag när ni vill gå ut igen.")}</p>
     <div class="home-actions">
+      ${button("Lägg till ett minne", "album")}
       ${button("Välj ett uppdrag", "list")}
       ${returnTo === "city" ? button("Till Göteborgspasset", "city", "secondary") : ""}
       ${button("Se kartan", "home", "secondary")}
@@ -196,7 +201,7 @@ function parentsMarkup() {
     </form>`;
 }
 
-const views = { home: homeMarkup, list: listMarkup, mission: missionMarkup, reward: rewardMarkup, parents: parentsMarkup, surprise: surpriseMarkup, city: cityMarkup };
+const views = { home: homeMarkup, list: listMarkup, mission: missionMarkup, reward: rewardMarkup, parents: parentsMarkup, surprise: surpriseMarkup, city: cityMarkup, family: familyMarkup, album: albumMarkup, memories: memoriesMarkup };
 
 function show(next, { scroll = true } = {}) {
   screen = next;
@@ -212,7 +217,7 @@ function show(next, { scroll = true } = {}) {
 
 window.gameBack = () => {
   if (screen === "home") return false;
-  show(screen === "mission" ? returnTo : "home");
+  show(screen === "mission" ? returnTo : screen === "album" ? "mission" : "home");
   return true;
 };
 
@@ -227,7 +232,7 @@ app.addEventListener("click", event => {
       app.querySelector('[aria-pressed="true"]').focus();
       break;
     case "mission":
-      openMission([...localMissions(), ...cityMissions].find(mission => mission.id === id));
+      openMission([...localMissions(), ...cityMissions, ...familyAdventures, cityTour, finale].find(mission => mission.id === id));
       break;
     case "surprise-pick": {
       const eligible = localMissions().filter(mission =>
@@ -256,6 +261,11 @@ app.addEventListener("click", event => {
       show("reward");
       break;
     }
+    case "album":
+      albumMission = current;
+      show("album");
+      loadAlbum();
+      break;
     case "back":
       window.gameBack();
       break;
@@ -264,6 +274,8 @@ app.addEventListener("click", event => {
     case "parents":
     case "surprise":
     case "city":
+    case "family":
+    case "memories":
       show(action);
       break;
   }
